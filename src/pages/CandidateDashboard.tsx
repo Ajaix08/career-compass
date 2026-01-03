@@ -7,8 +7,6 @@ import {
   Search,
   FileText,
   Bookmark,
-  Bell,
-  Settings,
   User,
   TrendingUp,
   Clock,
@@ -22,6 +20,7 @@ import { useCandidateApplications } from "@/hooks/useApplications";
 import { useSavedJobs } from "@/hooks/useSavedJobs";
 import { useJobs } from "@/hooks/useJobs";
 import { formatDistanceToNow } from "date-fns";
+import ResumeUpload from "@/components/candidate/ResumeUpload";
 
 const CandidateDashboard = () => {
   const navigate = useNavigate();
@@ -133,6 +132,9 @@ const CandidateDashboard = () => {
         </header>
 
         <div className="p-6 space-y-6">
+          {/* Resume Upload */}
+          <ResumeUpload />
+
           {/* Stats Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => (
