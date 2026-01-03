@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Briefcase, Eye, EyeOff, ArrowLeft, User, Building2, Shield } from "lucide-react";
+import { Briefcase, Eye, EyeOff, ArrowLeft, User, Building2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
-type UserRole = "candidate" | "recruiter" | "admin";
+type UserRole = "candidate" | "recruiter";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { signUp, user, role, isLoading: authLoading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>("candidate");
@@ -19,6 +21,19 @@ const Register = () => {
     password: "",
     companyName: "",
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && role) {
+      if (role === "candidate") {
+        navigate("/dashboard");
+      } else if (role === "recruiter") {
+        navigate("/recruiter/dashboard");
+      } else if (role === "admin") {
+        navigate("/admin/dashboard");
+      }
+    }
+  }, [user, role, navigate]);
 
   const roles = [
     {
@@ -39,13 +54,41 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate registration - will be replaced with actual auth
-    setTimeout(() => {
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
       setIsLoading(false);
-      toast.success("Account created successfully!");
-      navigate("/dashboard");
-    }, 1000);
+      return;
+    }
+
+    const { error } = await signUp(
+      formData.email,
+      formData.password,
+      formData.name,
+      selectedRole,
+      selectedRole === "recruiter" ? formData.companyName : undefined
+    );
+
+    if (error) {
+      setIsLoading(false);
+      if (error.message.includes("already registered")) {
+        toast.error("An account with this email already exists");
+      } else {
+        toast.error(error.message);
+      }
+      return;
+    }
+
+    setIsLoading(false);
+    toast.success("Account created successfully!");
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen gradient-hero flex items-center justify-center p-4">
@@ -153,7 +196,7 @@ const Register = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
-                  minLength={8}
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -168,7 +211,7 @@ const Register = () => {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters
+                Must be at least 6 characters
               </p>
             </div>
 
