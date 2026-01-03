@@ -71,17 +71,17 @@ const Jobs = () => {
   ];
 
   const experienceLevels = [
-    { value: "entry", label: "Entry Level" },
-    { value: "mid", label: "Mid Level" },
-    { value: "senior", label: "Senior" },
+    { value: "entry", label: "Fresher" },
+    { value: "mid", label: "Mid Level (2-5 yrs)" },
+    { value: "senior", label: "Senior (5+ yrs)" },
     { value: "executive", label: "Executive" },
   ];
 
   const formatSalary = (min?: number | null, max?: number | null) => {
     if (!min && !max) return null;
-    if (min && max) return `$${(min / 1000).toFixed(0)}K - $${(max / 1000).toFixed(0)}K`;
-    if (min) return `$${(min / 1000).toFixed(0)}K+`;
-    if (max) return `Up to $${(max / 1000).toFixed(0)}K`;
+    if (min && max) return `₹${(min / 100000).toFixed(1)}L - ₹${(max / 100000).toFixed(1)}L`;
+    if (min) return `₹${(min / 100000).toFixed(1)}L+`;
+    if (max) return `Up to ₹${(max / 100000).toFixed(1)}L`;
     return null;
   };
 
@@ -252,7 +252,7 @@ const Jobs = () => {
                               {isNew && (
                                 <Badge className="bg-success-light text-success border-0">New</Badge>
                               )}
-                              <Badge variant="outline">{job.job_type}</Badge>
+                              <Badge variant="outline" className="capitalize">{job.job_type}</Badge>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">

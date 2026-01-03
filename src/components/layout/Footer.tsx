@@ -1,17 +1,15 @@
 import { Link } from "react-router-dom";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
 
 const Footer = () => {
   const footerLinks = {
     forCandidates: [
       { label: "Browse Jobs", href: "/jobs" },
-      { label: "Browse Internships", href: "/internships" },
+      { label: "Companies", href: "/jobs" },
       { label: "Career Advice", href: "/resources" },
-      { label: "Resume Builder", href: "/resume" },
     ],
     forEmployers: [
-      { label: "Post a Job", href: "/post-job" },
-      { label: "Browse Candidates", href: "/candidates" },
+      { label: "Post a Job", href: "/recruiter/post-job" },
       { label: "Pricing", href: "/pricing" },
       { label: "Employer Resources", href: "/employer-resources" },
     ],
@@ -35,9 +33,23 @@ const Footer = () => {
               </div>
               <span>JobConnect</span>
             </Link>
-            <p className="text-sm text-muted-foreground">
-              Connecting talent with opportunity. Find your dream job or the perfect candidate.
+            <p className="text-sm text-muted-foreground mb-4">
+              India's leading job portal connecting talented professionals with top companies across the nation.
             </p>
+            <div className="flex gap-4">
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+            </div>
           </div>
 
           {/* For Candidates */}
@@ -94,16 +106,11 @@ const Footer = () => {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} JobConnect. All rights reserved.
+            © {new Date().getFullYear()} JobConnect India. All rights reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Privacy
-            </Link>
-            <Link to="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Terms
-            </Link>
-          </div>
+          <p className="text-sm text-muted-foreground">
+            Made with ❤️ in India
+          </p>
         </div>
       </div>
     </footer>
