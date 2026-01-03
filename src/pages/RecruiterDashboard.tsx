@@ -14,8 +14,6 @@ import {
   PlusCircle,
   FileText,
   Users,
-  Bell,
-  Settings,
   Building2,
   TrendingUp,
   Eye,
@@ -23,11 +21,13 @@ import {
   MapPin,
   User,
   LogOut,
+  Download,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRecruiterJobs, useUpdateJob } from "@/hooks/useJobs";
 import { useRecruiterApplications, useUpdateApplicationStatus } from "@/hooks/useApplications";
 import { useRecruiterCompany } from "@/hooks/useCompanies";
+import { useResumeDownload } from "@/hooks/useResume";
 import { formatDistanceToNow } from "date-fns";
 
 const RecruiterDashboard = () => {
@@ -38,6 +38,7 @@ const RecruiterDashboard = () => {
   const { data: applications, isLoading: applicationsLoading } = useRecruiterApplications(user?.id);
   const updateJob = useUpdateJob();
   const updateApplicationStatus = useUpdateApplicationStatus();
+  const { downloadResume } = useResumeDownload();
 
   const handleLogout = async () => {
     await signOut();
@@ -271,6 +272,17 @@ const RecruiterDashboard = () => {
                             {formatDistanceToNow(new Date(applicant.created_at), { addSuffix: true })}
                           </span>
                         </div>
+                        {applicant.candidate_profiles?.resume_url && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => downloadResume(applicant.candidate_profiles!.resume_url!)}
+                            className="gap-1"
+                          >
+                            <Download className="h-4 w-4" />
+                            Resume
+                          </Button>
+                        )}
                         <Select
                           value={applicant.status}
                           onValueChange={(value) => handleStatusChange(applicant.id, value)}

@@ -107,11 +107,19 @@ export function useRecruiterApplications(recruiterId?: string) {
         .select("id, full_name, email, avatar_url")
         .in("id", candidateIds);
 
+      // Fetch candidate profiles for resume URLs
+      const { data: candidateProfiles } = await supabase
+        .from("candidate_profiles")
+        .select("user_id, headline, experience_years, resume_url")
+        .in("user_id", candidateIds);
+
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      const candidateProfileMap = new Map(candidateProfiles?.map(cp => [cp.user_id, cp]) || []);
 
       return data.map(app => ({
         ...app,
         profiles: profileMap.get(app.candidate_id) || null,
+        candidate_profiles: candidateProfileMap.get(app.candidate_id) || null,
       })) as Application[];
     },
     enabled: !!recruiterId,
