@@ -20,6 +20,25 @@ import { useRecruiterCompany } from "@/hooks/useCompanies";
 import { useSkills } from "@/hooks/useSkills";
 import { toast } from "sonner";
 
+const indianCities = [
+  "Mumbai, Maharashtra",
+  "Delhi, NCR",
+  "Bangalore, Karnataka",
+  "Hyderabad, Telangana",
+  "Chennai, Tamil Nadu",
+  "Pune, Maharashtra",
+  "Kolkata, West Bengal",
+  "Ahmedabad, Gujarat",
+  "Jaipur, Rajasthan",
+  "Lucknow, Uttar Pradesh",
+  "Chandigarh, Punjab",
+  "Noida, Uttar Pradesh",
+  "Gurgaon, Haryana",
+  "Kochi, Kerala",
+  "Indore, Madhya Pradesh",
+  "Remote",
+];
+
 const PostJob = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -138,7 +157,7 @@ const PostJob = () => {
               <Label htmlFor="title">Job Title *</Label>
               <Input
                 id="title"
-                placeholder="e.g. Senior Frontend Developer"
+                placeholder="e.g. Senior Software Engineer"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
@@ -160,13 +179,21 @@ const PostJob = () => {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  placeholder="e.g. San Francisco, CA"
+                <Select
                   value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  required
-                />
+                  onValueChange={(value) => setFormData({ ...formData, location: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select city" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {indianCities.map((city) => (
+                      <SelectItem key={city} value={city}>
+                        {city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
@@ -198,7 +225,7 @@ const PostJob = () => {
                 }
               />
               <Label htmlFor="is_remote" className="font-normal cursor-pointer">
-                This is a remote position
+                This is a remote/work from home position
               </Label>
             </div>
           </div>
@@ -217,9 +244,9 @@ const PostJob = () => {
                   <SelectValue placeholder="Select experience level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="entry">Entry Level</SelectItem>
-                  <SelectItem value="mid">Mid Level</SelectItem>
-                  <SelectItem value="senior">Senior</SelectItem>
+                  <SelectItem value="entry">Fresher (0-1 years)</SelectItem>
+                  <SelectItem value="mid">Mid Level (2-5 years)</SelectItem>
+                  <SelectItem value="senior">Senior (5+ years)</SelectItem>
                   <SelectItem value="executive">Executive</SelectItem>
                 </SelectContent>
               </Select>
@@ -227,25 +254,27 @@ const PostJob = () => {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="salary_min">Minimum Salary (USD/year)</Label>
+                <Label htmlFor="salary_min">Minimum CTC (₹/year)</Label>
                 <Input
                   id="salary_min"
                   type="number"
-                  placeholder="e.g. 80000"
+                  placeholder="e.g. 600000"
                   value={formData.salary_min}
                   onChange={(e) => setFormData({ ...formData, salary_min: e.target.value })}
                 />
+                <p className="text-xs text-muted-foreground">Enter in rupees (e.g. 600000 for 6 LPA)</p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="salary_max">Maximum Salary (USD/year)</Label>
+                <Label htmlFor="salary_max">Maximum CTC (₹/year)</Label>
                 <Input
                   id="salary_max"
                   type="number"
-                  placeholder="e.g. 120000"
+                  placeholder="e.g. 1200000"
                   value={formData.salary_max}
                   onChange={(e) => setFormData({ ...formData, salary_max: e.target.value })}
                 />
+                <p className="text-xs text-muted-foreground">Enter in rupees (e.g. 1200000 for 12 LPA)</p>
               </div>
             </div>
 

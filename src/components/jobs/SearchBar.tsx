@@ -28,7 +28,7 @@ const SearchBar = ({ onSearch, className = "", variant = "default" }: SearchBarP
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="Job title, keywords, or company"
+            placeholder="Job title, skills, or company"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-12 h-12 border-0 bg-secondary/50 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -38,7 +38,7 @@ const SearchBar = ({ onSearch, className = "", variant = "default" }: SearchBarP
           <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             type="text"
-            placeholder="City, state, or remote"
+            placeholder="Mumbai, Bangalore, Delhi..."
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             className="pl-12 h-12 border-0 bg-secondary/50 focus-visible:ring-0 focus-visible:ring-offset-0"

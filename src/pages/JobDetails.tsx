@@ -20,7 +20,7 @@ import {
   MapPin,
   Building2,
   Clock,
-  DollarSign,
+  IndianRupee,
   Briefcase,
   Bookmark,
   Share2,
@@ -126,9 +126,9 @@ const JobDetails = () => {
 
   const formatSalary = (min?: number | null, max?: number | null) => {
     if (!min && !max) return null;
-    if (min && max) return `$${(min / 1000).toFixed(0)}K - $${(max / 1000).toFixed(0)}K per year`;
-    if (min) return `$${(min / 1000).toFixed(0)}K+ per year`;
-    if (max) return `Up to $${(max / 1000).toFixed(0)}K per year`;
+    if (min && max) return `₹${(min / 100000).toFixed(1)}L - ₹${(max / 100000).toFixed(1)}L per annum`;
+    if (min) return `₹${(min / 100000).toFixed(1)}L+ per annum`;
+    if (max) return `Up to ₹${(max / 100000).toFixed(1)}L per annum`;
     return null;
   };
 
@@ -192,7 +192,7 @@ const JobDetails = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <h1 className="font-display text-2xl font-bold">{job.title}</h1>
-                      <Badge variant="outline">{job.job_type}</Badge>
+                      <Badge variant="outline" className="capitalize">{job.job_type}</Badge>
                       {job.is_remote && <Badge className="bg-success-light text-success border-0">Remote</Badge>}
                     </div>
                     <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
@@ -229,7 +229,7 @@ const JobDetails = () => {
 
                 {salary && (
                   <div className="flex items-center gap-2 mt-4 text-lg font-semibold text-primary">
-                    <DollarSign className="h-5 w-5" />
+                    <IndianRupee className="h-5 w-5" />
                     {salary}
                   </div>
                 )}
@@ -293,7 +293,7 @@ const JobDetails = () => {
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Application Deadline</p>
-                        <p className="font-medium">{new Date(job.deadline).toLocaleDateString()}</p>
+                        <p className="font-medium">{new Date(job.deadline).toLocaleDateString('en-IN')}</p>
                       </div>
                     </div>
                   )}

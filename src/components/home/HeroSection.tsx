@@ -1,13 +1,16 @@
+import { Link, useNavigate } from "react-router-dom";
 import SearchBar from "@/components/jobs/SearchBar";
 import { Badge } from "@/components/ui/badge";
 import { Users, Briefcase, Building2, TrendingUp } from "lucide-react";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   const stats = [
     { icon: Briefcase, value: "50,000+", label: "Active Jobs" },
     { icon: Building2, value: "10,000+", label: "Companies" },
-    { icon: Users, value: "2M+", label: "Candidates" },
-    { icon: TrendingUp, value: "500K+", label: "Hired" },
+    { icon: Users, value: "20L+", label: "Candidates" },
+    { icon: TrendingUp, value: "5L+", label: "Hired" },
   ];
 
   const popularSearches = [
@@ -18,6 +21,10 @@ const HeroSection = () => {
     "Marketing",
     "Remote",
   ];
+
+  const handleSearch = (query: string, location: string) => {
+    navigate(`/jobs?search=${encodeURIComponent(query)}&location=${encodeURIComponent(location)}`);
+  };
 
   return (
     <section className="relative overflow-hidden gradient-hero py-16 md:py-24 lg:py-32">
@@ -34,7 +41,7 @@ const HeroSection = () => {
             variant="secondary"
             className="mb-6 px-4 py-1.5 text-sm font-medium animate-fade-in"
           >
-            🚀 Over 10,000 companies hiring now
+            🇮🇳 India's #1 Job Portal - 10,000+ companies hiring
           </Badge>
 
           {/* Headline */}
@@ -42,18 +49,18 @@ const HeroSection = () => {
             Find Your{" "}
             <span className="gradient-text">Dream Career</span>
             <br />
-            Start Today
+            in India
           </h1>
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto animate-fade-in stagger-2">
-            Connect with top employers and discover opportunities that match your skills,
+            Connect with top employers across India and discover opportunities that match your skills,
             experience, and career goals.
           </p>
 
           {/* Search Bar */}
           <div className="max-w-3xl mx-auto animate-fade-in stagger-3">
-            <SearchBar variant="hero" />
+            <SearchBar variant="hero" onSearch={handleSearch} />
           </div>
 
           {/* Popular Searches */}
@@ -62,6 +69,7 @@ const HeroSection = () => {
             {popularSearches.map((search) => (
               <button
                 key={search}
+                onClick={() => navigate(`/jobs?search=${encodeURIComponent(search)}`)}
                 className="text-sm text-primary hover:text-primary-hover hover:underline transition-colors"
               >
                 {search}
