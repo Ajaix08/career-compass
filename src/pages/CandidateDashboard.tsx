@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,81 +12,64 @@ import {
   User,
   TrendingUp,
   Clock,
-  CheckCircle2,
-  XCircle,
   Building2,
   MapPin,
   Calendar,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useCandidateApplications } from "@/hooks/useApplications";
+import { useSavedJobs } from "@/hooks/useSavedJobs";
+import { useJobs } from "@/hooks/useJobs";
+import { formatDistanceToNow } from "date-fns";
 
 const CandidateDashboard = () => {
-  // Mock data
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { data: applications, isLoading: applicationsLoading } = useCandidateApplications(user?.id);
+  const { data: savedJobs, isLoading: savedJobsLoading } = useSavedJobs(user?.id);
+  const { data: allJobs } = useJobs();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   const stats = [
-    { label: "Applications", value: "12", icon: FileText, change: "+3 this week" },
-    { label: "Saved Jobs", value: "8", icon: Bookmark, change: "+2 new matches" },
-    { label: "Profile Views", value: "45", icon: TrendingUp, change: "+12% this month" },
-    { label: "Interviews", value: "3", icon: Calendar, change: "2 upcoming" },
-  ];
-
-  const recentApplications = [
     {
-      id: "1",
-      title: "Senior Frontend Developer",
-      company: "TechCorp Inc.",
-      location: "San Francisco, CA",
-      appliedAt: "2 days ago",
-      status: "Under Review",
+      label: "Applications",
+      value: applications?.length || 0,
+      icon: FileText,
+      change: `${applications?.filter((a) => new Date(a.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length || 0} this week`,
     },
     {
-      id: "2",
-      title: "Product Designer",
-      company: "Design Studio",
-      location: "Remote",
-      appliedAt: "5 days ago",
-      status: "Shortlisted",
+      label: "Saved Jobs",
+      value: savedJobs?.length || 0,
+      icon: Bookmark,
+      change: "Browse more",
     },
     {
-      id: "3",
-      title: "Full Stack Developer",
-      company: "StartupXYZ",
-      location: "New York, NY",
-      appliedAt: "1 week ago",
-      status: "Rejected",
+      label: "Available Jobs",
+      value: allJobs?.length || 0,
+      icon: TrendingUp,
+      change: "New opportunities",
+    },
+    {
+      label: "Interviews",
+      value: applications?.filter((a) => a.status === "interview").length || 0,
+      icon: Calendar,
+      change: "Scheduled",
     },
   ];
 
-  const recommendedJobs = [
-    {
-      id: "1",
-      title: "React Developer",
-      company: "InnovateTech",
-      location: "Remote",
-      salary: "$100K - $130K",
-      match: 95,
-    },
-    {
-      id: "2",
-      title: "Frontend Engineer",
-      company: "CloudFirst",
-      location: "Austin, TX",
-      salary: "$110K - $140K",
-      match: 88,
-    },
-    {
-      id: "3",
-      title: "UI Developer",
-      company: "PixelPerfect",
-      location: "Seattle, WA",
-      salary: "$90K - $120K",
-      match: 82,
-    },
-  ];
-
-  const statusColors = {
-    "Under Review": "bg-warning-light text-warning",
-    "Shortlisted": "bg-success-light text-success",
-    "Rejected": "bg-destructive/10 text-destructive",
-    "Interview": "bg-primary-light text-primary",
+  const statusColors: Record<string, string> = {
+    applied: "bg-primary-light text-primary",
+    reviewing: "bg-warning-light text-warning",
+    shortlisted: "bg-success-light text-success",
+    interview: "bg-primary-light text-primary",
+    offered: "bg-success-light text-success",
+    rejected: "bg-destructive/10 text-destructive",
+    withdrawn: "bg-muted text-muted-foreground",
   };
 
   return (
@@ -117,45 +100,16 @@ const CandidateDashboard = () => {
             <Search className="h-5 w-5" />
             Find Jobs
           </Link>
-          <Link
-            to="/applications"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <FileText className="h-5 w-5" />
-            Applications
-          </Link>
-          <Link
-            to="/saved-jobs"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Bookmark className="h-5 w-5" />
-            Saved Jobs
-          </Link>
-          <Link
-            to="/notifications"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Bell className="h-5 w-5" />
-            Notifications
-            <Badge className="ml-auto bg-primary text-primary-foreground text-xs">3</Badge>
-          </Link>
         </nav>
 
         <div className="p-4 border-t border-border space-y-1">
-          <Link
-            to="/profile"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors w-full"
           >
-            <User className="h-5 w-5" />
-            Profile
-          </Link>
-          <Link
-            to="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </Link>
+            <LogOut className="h-5 w-5" />
+            Logout
+          </button>
         </div>
       </aside>
 
@@ -165,14 +119,12 @@ const CandidateDashboard = () => {
         <header className="sticky top-0 z-10 bg-card/95 backdrop-blur border-b border-border px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="font-display text-2xl font-bold">Welcome back, John!</h1>
+              <h1 className="font-display text-2xl font-bold">
+                Welcome back{user?.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ""}!
+              </h1>
               <p className="text-muted-foreground">Here's what's happening with your job search</p>
             </div>
             <div className="flex items-center gap-4">
-              <button className="relative p-2 rounded-lg hover:bg-secondary">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
-              </button>
               <div className="h-10 w-10 rounded-full bg-primary-light flex items-center justify-center">
                 <User className="h-5 w-5 text-primary" />
               </div>
@@ -208,100 +160,94 @@ const CandidateDashboard = () => {
             <div className="bg-card rounded-xl border border-border shadow-sm">
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h2 className="font-display font-semibold text-lg">Recent Applications</h2>
-                <Link to="/applications" className="text-sm text-primary hover:underline">
-                  View all
-                </Link>
               </div>
               <div className="divide-y divide-border">
-                {recentApplications.map((app) => (
-                  <div key={app.id} className="p-4 hover:bg-secondary/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium truncate">{app.title}</h3>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                          <Building2 className="h-4 w-4" />
-                          <span>{app.company}</span>
-                          <span>•</span>
-                          <MapPin className="h-4 w-4" />
-                          <span>{app.location}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-xs text-muted-foreground">Applied {app.appliedAt}</span>
-                        </div>
-                      </div>
-                      <Badge className={statusColors[app.status as keyof typeof statusColors]}>
-                        {app.status}
-                      </Badge>
-                    </div>
+                {applicationsLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                   </div>
-                ))}
+                ) : applications && applications.length > 0 ? (
+                  applications.slice(0, 5).map((app) => (
+                    <div key={app.id} className="p-4 hover:bg-secondary/50 transition-colors">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium truncate">{app.jobs?.title}</h3>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                            <Building2 className="h-4 w-4" />
+                            <span>{app.jobs?.companies?.name}</span>
+                            <span>•</span>
+                            <MapPin className="h-4 w-4" />
+                            <span>{app.jobs?.location}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Clock className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">
+                              Applied {formatDistanceToNow(new Date(app.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                        </div>
+                        <Badge className={statusColors[app.status] || statusColors.applied}>
+                          {app.status.replace("_", " ")}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No applications yet</p>
+                    <Link to="/jobs">
+                      <Button variant="outline" className="mt-4">
+                        Browse Jobs
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Recommended Jobs */}
+            {/* Saved Jobs */}
             <div className="bg-card rounded-xl border border-border shadow-sm">
               <div className="p-6 border-b border-border flex items-center justify-between">
-                <h2 className="font-display font-semibold text-lg">Recommended for You</h2>
+                <h2 className="font-display font-semibold text-lg">Saved Jobs</h2>
                 <Link to="/jobs" className="text-sm text-primary hover:underline">
-                  View all
+                  Find more
                 </Link>
               </div>
               <div className="divide-y divide-border">
-                {recommendedJobs.map((job) => (
-                  <div key={job.id} className="p-4 hover:bg-secondary/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium truncate">{job.title}</h3>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                          <Building2 className="h-4 w-4" />
-                          <span>{job.company}</span>
-                          <span>•</span>
-                          <MapPin className="h-4 w-4" />
-                          <span>{job.location}</span>
+                {savedJobsLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  </div>
+                ) : savedJobs && savedJobs.length > 0 ? (
+                  savedJobs.slice(0, 5).map((saved: any) => (
+                    <div key={saved.id} className="p-4 hover:bg-secondary/50 transition-colors">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium truncate">{saved.jobs?.title}</h3>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                            <Building2 className="h-4 w-4" />
+                            <span>{saved.jobs?.companies?.name}</span>
+                            <span>•</span>
+                            <MapPin className="h-4 w-4" />
+                            <span>{saved.jobs?.location}</span>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground mt-1">{job.salary}</p>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="outline" className="bg-success-light text-success border-success/30">
-                          {job.match}% match
-                        </Badge>
-                        <Button size="sm" className="mt-2">
-                          Apply
-                        </Button>
+                        <Link to={`/jobs/${saved.job_id}`}>
+                          <Button size="sm">View</Button>
+                        </Link>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No saved jobs</p>
+                    <Link to="/jobs">
+                      <Button variant="outline" className="mt-4">
+                        Browse Jobs
+                      </Button>
+                    </Link>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Completion */}
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display font-semibold text-lg">Complete Your Profile</h2>
-              <span className="text-sm text-muted-foreground">75% complete</span>
-            </div>
-            <div className="w-full bg-secondary rounded-full h-2 mb-4">
-              <div className="bg-primary h-2 rounded-full" style={{ width: "75%" }} />
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Basic Info</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Resume Uploaded</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle2 className="h-4 w-4 text-success" />
-                <span>Skills Added</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <XCircle className="h-4 w-4" />
-                <span>Add Experience</span>
+                )}
               </div>
             </div>
           </div>

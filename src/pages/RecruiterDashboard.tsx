@@ -1,6 +1,13 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Briefcase,
   Home,
@@ -15,84 +22,58 @@ import {
   Clock,
   MapPin,
   User,
+  LogOut,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useRecruiterJobs, useUpdateJob } from "@/hooks/useJobs";
+import { useRecruiterApplications, useUpdateApplicationStatus } from "@/hooks/useApplications";
+import { useRecruiterCompany } from "@/hooks/useCompanies";
+import { formatDistanceToNow } from "date-fns";
 
 const RecruiterDashboard = () => {
-  // Mock data
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { data: company } = useRecruiterCompany(user?.id);
+  const { data: jobs, isLoading: jobsLoading } = useRecruiterJobs(user?.id);
+  const { data: applications, isLoading: applicationsLoading } = useRecruiterApplications(user?.id);
+  const updateJob = useUpdateJob();
+  const updateApplicationStatus = useUpdateApplicationStatus();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
   const stats = [
-    { label: "Active Jobs", value: "8", icon: Briefcase, change: "+2 this month" },
-    { label: "Total Applications", value: "156", icon: FileText, change: "+34 this week" },
-    { label: "New Candidates", value: "42", icon: Users, change: "+12 today" },
-    { label: "Profile Views", value: "1.2K", icon: Eye, change: "+18% this month" },
-  ];
-
-  const recentJobs = [
     {
-      id: "1",
-      title: "Senior Frontend Developer",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      applications: 45,
-      views: 320,
-      postedAt: "2 days ago",
-      status: "Active",
+      label: "Active Jobs",
+      value: jobs?.filter((j) => j.status === "active").length || 0,
+      icon: Briefcase,
+      change: "Posted jobs",
     },
     {
-      id: "2",
-      title: "Product Designer",
-      location: "Remote",
-      type: "Full-time",
-      applications: 32,
-      views: 245,
-      postedAt: "5 days ago",
-      status: "Active",
+      label: "Total Applications",
+      value: applications?.length || 0,
+      icon: FileText,
+      change: "All applications",
     },
     {
-      id: "3",
-      title: "Backend Engineer",
-      location: "New York, NY",
-      type: "Full-time",
-      applications: 28,
-      views: 180,
-      postedAt: "1 week ago",
-      status: "Paused",
+      label: "New Candidates",
+      value: applications?.filter((a) => a.status === "applied").length || 0,
+      icon: Users,
+      change: "Pending review",
+    },
+    {
+      label: "Interviews",
+      value: applications?.filter((a) => a.status === "interview").length || 0,
+      icon: Eye,
+      change: "Scheduled",
     },
   ];
 
-  const recentApplicants = [
-    {
-      id: "1",
-      name: "John Doe",
-      role: "Senior Frontend Developer",
-      experience: "5 years",
-      appliedAt: "2 hours ago",
-      match: 95,
-    },
-    {
-      id: "2",
-      name: "Jane Smith",
-      role: "Product Designer",
-      experience: "4 years",
-      appliedAt: "4 hours ago",
-      match: 88,
-    },
-    {
-      id: "3",
-      name: "Mike Johnson",
-      role: "Senior Frontend Developer",
-      experience: "6 years",
-      appliedAt: "1 day ago",
-      match: 92,
-    },
-    {
-      id: "4",
-      name: "Sarah Williams",
-      role: "Backend Engineer",
-      experience: "3 years",
-      appliedAt: "1 day ago",
-      match: 78,
-    },
-  ];
+  const handleStatusChange = (applicationId: string, status: string) => {
+    updateApplicationStatus.mutate({ id: applicationId, status });
+  };
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -122,45 +103,16 @@ const RecruiterDashboard = () => {
             <PlusCircle className="h-5 w-5" />
             Post a Job
           </Link>
-          <Link
-            to="/recruiter/jobs"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <FileText className="h-5 w-5" />
-            My Jobs
-          </Link>
-          <Link
-            to="/recruiter/applicants"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Users className="h-5 w-5" />
-            Applicants
-            <Badge className="ml-auto bg-primary text-primary-foreground text-xs">12</Badge>
-          </Link>
-          <Link
-            to="/recruiter/notifications"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Bell className="h-5 w-5" />
-            Notifications
-          </Link>
         </nav>
 
         <div className="p-4 border-t border-border space-y-1">
-          <Link
-            to="/recruiter/company"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors w-full"
           >
-            <Building2 className="h-5 w-5" />
-            Company Profile
-          </Link>
-          <Link
-            to="/recruiter/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-          >
-            <Settings className="h-5 w-5" />
-            Settings
-          </Link>
+            <LogOut className="h-5 w-5" />
+            Logout
+          </button>
         </div>
       </aside>
 
@@ -171,7 +123,9 @@ const RecruiterDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-display text-2xl font-bold">Recruiter Dashboard</h1>
-              <p className="text-muted-foreground">Manage your job postings and applicants</p>
+              <p className="text-muted-foreground">
+                {company ? company.name : "Manage your job postings and applicants"}
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <Link to="/recruiter/post-job">
@@ -180,10 +134,6 @@ const RecruiterDashboard = () => {
                   Post a Job
                 </Button>
               </Link>
-              <button className="relative p-2 rounded-lg hover:bg-secondary">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
-              </button>
               <div className="h-10 w-10 rounded-full bg-primary-light flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-primary" />
               </div>
@@ -219,51 +169,76 @@ const RecruiterDashboard = () => {
             <div className="bg-card rounded-xl border border-border shadow-sm">
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h2 className="font-display font-semibold text-lg">Recent Job Postings</h2>
-                <Link to="/recruiter/jobs" className="text-sm text-primary hover:underline">
-                  View all
+                <Link to="/recruiter/post-job" className="text-sm text-primary hover:underline">
+                  Post new
                 </Link>
               </div>
               <div className="divide-y divide-border">
-                {recentJobs.map((job) => (
-                  <div key={job.id} className="p-4 hover:bg-secondary/50 transition-colors">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium truncate">{job.title}</h3>
-                          <Badge
+                {jobsLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  </div>
+                ) : jobs && jobs.length > 0 ? (
+                  jobs.slice(0, 5).map((job) => {
+                    const jobApplications = applications?.filter((a) => a.job_id === job.id) || [];
+                    return (
+                      <div key={job.id} className="p-4 hover:bg-secondary/50 transition-colors">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium truncate">{job.title}</h3>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  job.status === "active"
+                                    ? "bg-success-light text-success border-success/30"
+                                    : "bg-warning-light text-warning border-warning/30"
+                                }
+                              >
+                                {job.status}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                              <MapPin className="h-4 w-4" />
+                              <span>{job.location}</span>
+                              <span>•</span>
+                              <span className="capitalize">{job.job_type}</span>
+                            </div>
+                            <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Users className="h-4 w-4" />
+                                {jobApplications.length} applicants
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-4 w-4" />
+                                {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
+                              </span>
+                            </div>
+                          </div>
+                          <Button
                             variant="outline"
-                            className={
-                              job.status === "Active"
-                                ? "bg-success-light text-success border-success/30"
-                                : "bg-warning-light text-warning border-warning/30"
+                            size="sm"
+                            onClick={() =>
+                              updateJob.mutate({
+                                id: job.id,
+                                status: job.status === "active" ? "closed" : "active",
+                              })
                             }
                           >
-                            {job.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{job.location}</span>
-                          <span>•</span>
-                          <span>{job.type}</span>
-                        </div>
-                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4" />
-                            {job.applications} applicants
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye className="h-4 w-4" />
-                            {job.views} views
-                          </span>
+                            {job.status === "active" ? "Close" : "Reopen"}
+                          </Button>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
-                        Manage
-                      </Button>
-                    </div>
+                    );
+                  })
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No jobs posted yet</p>
+                    <Link to="/recruiter/post-job">
+                      <Button className="mt-4">Post Your First Job</Button>
+                    </Link>
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -271,46 +246,55 @@ const RecruiterDashboard = () => {
             <div className="bg-card rounded-xl border border-border shadow-sm">
               <div className="p-6 border-b border-border flex items-center justify-between">
                 <h2 className="font-display font-semibold text-lg">Recent Applicants</h2>
-                <Link to="/recruiter/applicants" className="text-sm text-primary hover:underline">
-                  View all
-                </Link>
               </div>
               <div className="divide-y divide-border">
-                {recentApplicants.map((applicant) => (
-                  <div key={applicant.id} className="p-4 hover:bg-secondary/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
-                        <User className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium">{applicant.name}</h3>
-                        <p className="text-sm text-muted-foreground truncate">
-                          Applied for: {applicant.role}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground">
-                            {applicant.experience} exp
-                          </span>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                {applicationsLoading ? (
+                  <div className="p-8 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  </div>
+                ) : applications && applications.length > 0 ? (
+                  applications.slice(0, 5).map((applicant) => (
+                    <div key={applicant.id} className="p-4 hover:bg-secondary/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
+                          <User className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium">
+                            {applicant.profiles?.full_name || applicant.profiles?.email || "Candidate"}
+                          </h3>
+                          <p className="text-sm text-muted-foreground truncate">
+                            Applied for: {applicant.jobs?.title}
+                          </p>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                             <Clock className="h-3 w-3" />
-                            {applicant.appliedAt}
+                            {formatDistanceToNow(new Date(applicant.created_at), { addSuffix: true })}
                           </span>
                         </div>
-                      </div>
-                      <div className="text-right">
-                        <Badge variant="outline" className="bg-success-light text-success border-success/30">
-                          {applicant.match}% match
-                        </Badge>
-                        <div className="flex gap-2 mt-2">
-                          <Button variant="outline" size="sm">
-                            View
-                          </Button>
-                        </div>
+                        <Select
+                          value={applicant.status}
+                          onValueChange={(value) => handleStatusChange(applicant.id, value)}
+                        >
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="applied">Applied</SelectItem>
+                            <SelectItem value="reviewing">Reviewing</SelectItem>
+                            <SelectItem value="shortlisted">Shortlisted</SelectItem>
+                            <SelectItem value="interview">Interview</SelectItem>
+                            <SelectItem value="offered">Offered</SelectItem>
+                            <SelectItem value="rejected">Rejected</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-muted-foreground">
+                    <p>No applications yet</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -325,22 +309,10 @@ const RecruiterDashboard = () => {
                   <span>Post New Job</span>
                 </Button>
               </Link>
-              <Link to="/recruiter/applicants">
+              <Link to="/jobs">
                 <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <Users className="h-6 w-6" />
-                  <span>Review Applicants</span>
-                </Button>
-              </Link>
-              <Link to="/recruiter/company">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <Building2 className="h-6 w-6" />
-                  <span>Edit Company</span>
-                </Button>
-              </Link>
-              <Link to="/recruiter/analytics">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <TrendingUp className="h-6 w-6" />
-                  <span>View Analytics</span>
+                  <Eye className="h-6 w-6" />
+                  <span>View All Jobs</span>
                 </Button>
               </Link>
             </div>

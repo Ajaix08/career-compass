@@ -1,19 +1,33 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Menu, X } from "lucide-react";
+import { Briefcase, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, role, signOut } = useAuth();
 
   const navLinks = [
     { href: "/jobs", label: "Find Jobs" },
-    { href: "/internships", label: "Internships" },
-    { href: "/companies", label: "Companies" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getDashboardLink = () => {
+    if (role === "candidate") return "/dashboard";
+    if (role === "recruiter") return "/recruiter/dashboard";
+    if (role === "admin") return "/admin/dashboard";
+    return "/dashboard";
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -43,14 +57,30 @@ const Header = () => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Login
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm">Get Started</Button>
-          </Link>
+          {user ? (
+            <>
+              <Link to={getDashboardLink()}>
+                <Button variant="ghost" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Login
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Get Started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -84,14 +114,29 @@ const Header = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  Login
-                </Button>
-              </Link>
-              <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full">Get Started</Button>
-              </Link>
+              {user ? (
+                <>
+                  <Link to={getDashboardLink()} onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Button className="w-full" onClick={handleLogout}>
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/register" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full">Get Started</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>
