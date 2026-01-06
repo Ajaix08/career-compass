@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Briefcase, Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
+import { Briefcase, Linkedin, Github, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   const footerLinks = {
@@ -13,18 +13,13 @@ const Footer = () => {
       { label: "Pricing", href: "/pricing" },
       { label: "Employer Resources", href: "/employer-resources" },
     ],
-    company: [
-      { label: "About Us", href: "/about" },
-      { label: "Contact", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-    ],
+
   };
 
   return (
     <footer className="border-t border-border bg-card">
       <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 font-display font-bold text-xl mb-4">
@@ -37,17 +32,17 @@ const Footer = () => {
               India's leading job portal connecting talented professionals with top companies across the nation.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Twitter className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+
+              <a href="https://in.linkedin.com/in/anuragkumar008"className="text-muted-foreground hover:text-primary transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                <Instagram className="h-5 w-5" />
+
+              <a href="https://github.com/Ajaix08" className="text-muted-foreground hover:text-primary transition-colors">
+                <Github className="h-5 w-5" />
+              </a>
+
+              <a href="https://wa.me/919835563988?text=Hello%20I%20found%20your%20portfolio" className="text-muted-foreground hover:text-primary transition-colors">
+                <MessageCircle className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -86,30 +81,15 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Company */}
-          <div>
-            <h4 className="font-display font-semibold mb-4">Company</h4>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+
         </div>
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} JobConnect India. All rights reserved.
+            © {new Date().getFullYear()} Anurag Kumar. All rights reserved.
           </p>
           <p className="text-sm text-muted-foreground">
-            Made with ❤️ in India
+            Made By Anurag Kumar
           </p>
         </div>
       </div>
